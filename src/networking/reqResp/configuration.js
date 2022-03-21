@@ -1,5 +1,0 @@
-exports.REQUEST_TIMEOUT = 5000;
-exports.DIAL_TIMEOUT = 5000;
-exports.TTFB_TIMEOUT = 5000;
-exports.RESP_TIMEOUT = 10000;
-exports.MAX_VARINT_BYTES = 10;

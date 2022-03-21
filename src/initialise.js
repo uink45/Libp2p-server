@@ -12,9 +12,7 @@ async function fetchState(){
     const stateId = "head";
     const url = `${remoteBeaconUrl}/eth/v1/debug/beacon/states/${stateId}`;
     const state = await fetchWeakSubjectivityState(config, url);
-    const stateTreeBacked = types.ssz.altair.BeaconState.createTreeBackedFromStruct(state);
-
-    return stateTreeBacked;
+    return state;
 }
 exports.fetchState = fetchState;
 

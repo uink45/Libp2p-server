@@ -248,6 +248,7 @@ class PeerManager {
             }
             else {
                 isIrrelevant = true;
+
                 this.logger.debug("Irrelevant peer", {
                     peer: (0, util_1.prettyPrintPeerId)(peer),
                     reason: (0, utils_1.renderIrrelevantPeerType)(irrelevantReasonType),
@@ -255,6 +256,8 @@ class PeerManager {
             }
         }
         catch (e) {
+            console.log("Irrelevant peer - unexpected error");
+            console.log(peer);
             this.logger.error("Irrelevant peer - unexpected error", { peer: (0, util_1.prettyPrintPeerId)(peer) }, e);
             isIrrelevant = true;
         }

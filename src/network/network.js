@@ -5,6 +5,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Network = void 0;
 const chain_1 = require("../chain/emitter");
+const clock_1 = require("../chain/clock");
 const reqresp_1 = require("./reqresp");
 const metadata_1 = require("./metadata");
 const emitter_1 = require("../chain/emitter");
@@ -13,6 +14,7 @@ const peerManager_1 = require("./peers/peerManager");
 const peers_1 = require("./peers");
 const events_1 = require("./events");
 const blocks_1 = require("./blocks");
+const { getReqRespHandlers } = require("./reqresp/handlers");
 class Network {
     constructor(opts, modules) {
         this.opts = opts;
@@ -53,13 +55,14 @@ class Network {
         };
         this.unsubscribeCoreTopicsAtFork = (fork) => {
         };
-        const { state, config, libp2p, logger, metrics, reqRespHandlers, signal } = modules;
-        const clock = new clock_1.LocalClock({ config, emitter, genesisTime: 1606824023, signal });
+        const { state, config, libp2p, logger, metrics, signal } = modules;
         const emitter = new emitter_1.ChainEventEmitter();
+        const clock = new clock_1.LocalClock({ config, emitter, genesisTime: 1606824023, signal });
         const networkEventBus = new events_1.NetworkEventBus();
         const metadata = new metadata_1.MetadataController({}, { config, clock, logger });
-        const peerRpcScores = new peers_1.PeerRpcScoreStore();
-        const blocks = new blocks_1.Blocks(state, config, clock );         
+        const peerRpcScores = new peers_1.PeerRpcScoreStore();        
+        const blocks = new blocks_1.Blocks(state, config, clock );    
+        const reqRespHandlers = getReqRespHandlers({blocks});  
         this.libp2p = libp2p;
         this.logger = logger;
         this.config = config;
@@ -72,8 +75,6 @@ class Network {
         this.peerManager = new peerManager_1.PeerManager({
             libp2p,
             reqResp: this.reqResp,
-            attnetsService: this.attnetsService,
-            syncnetsService: this.syncnetsService,
             logger,
             blocks,
             metrics,
@@ -96,7 +97,6 @@ class Network {
         this.reqResp.start();
         this.metadata.start(this.getEnr(), this.config.getForkName(this.clock.currentSlot));
         await this.peerManager.start();
-        await this.gossip.start();
         const multiaddresses = this.libp2p.multiaddrs.map((m) => m.toString()).join(",");
         this.logger.info(`PeerId ${this.libp2p.peerId.toB58String()}, Multiaddrs ${multiaddresses}`);
     }
@@ -104,7 +104,6 @@ class Network {
         // Must goodbye and disconnect before stopping libp2p
         await this.peerManager.goodbyeAndDisconnectAllPeers();
         await this.peerManager.stop();
-        await this.gossip.stop();
         this.reqResp.stop();
         await this.libp2p.stop();
     }

@@ -7,6 +7,8 @@ const args = {
    weakSubjectivitySyncLatest: true,
    'weak-subjectivity-sync-latest': true,
    'api.rest.api': [ 'lightclient', 'beacon' ],
+   logLevel: 'info',
+   'log-level': 'info',
    '$0': ''
 }
 exports.args = args;

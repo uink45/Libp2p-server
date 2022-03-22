@@ -42,18 +42,12 @@ async function createModules(){
         abortController.abort();
     }, logger.info.bind(logger));
     logger.info("Lodestar", { version: version, network: args.network });
-    const db = new BeaconDb({
-        config,
-        controller: new LevelDbController(options.db, { logger: logger.child(options.logger.db)}),
-        metrics: void 0,
-    })
-    await db.start();
     const status = await fetchCheckpoint(logger);
     const beaconConfig = createIBeaconConfig(config, fromHexString("0x4b363db94e286120d76eb905340fdd4e54bfe9f06bf33ff6cf5ad27f511bfe95"));
     const libp2p = await createNodeJsLibp2p(peerId, options.network, {peerStoreDir: beaconPaths.peerStoreDir});
     const controller = new AbortController();
     const signal = controller.signal;
-    return { status, options, beaconConfig, libp2p, db, logger, controller, signal };
+    return { status, options, beaconConfig, libp2p, logger, controller, signal };
 }
 exports.createModules = createModules;
 

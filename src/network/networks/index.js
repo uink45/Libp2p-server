@@ -110,8 +110,6 @@ exports.fetchWeakSubjectivityState = fetchWeakSubjectivityState;
         const api = (0, lodestar_api_1.getClient)(config, { baseUrl: weakSubjectivityServerUrl });
         const finalityCheckpoint = await api.beacon.getStateFinalityCheckpoints("finalized");
         const block = await api.beacon.getBlockHeader("head");        
-        console.log(finalityCheckpoint.data.finalized);
-        console.log(block.data.header);
         return {finalizedCheckpoint: finalityCheckpoint.data.finalized, blockHeader: block.data.header };
     }
     catch (e) {

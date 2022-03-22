@@ -26,6 +26,7 @@ exports.fetchWeakSubjectivityState = exports.fetchBootnodes = exports.getGenesis
 const got_1 = __importDefault(require("got"));
 // eslint-disable-next-line no-restricted-imports
 const multifork_1 = require("@chainsafe/lodestar/lib/util/multifork");
+const lodestar_api_1 = require("@chainsafe/lodestar-api");
 const mainnet = __importStar(require("./mainnet"));
 const pyrmont = __importStar(require("./pyrmont"));
 const prater = __importStar(require("./prater"));
@@ -100,3 +101,21 @@ async function fetchWeakSubjectivityState(config, url) {
 }
 exports.fetchWeakSubjectivityState = fetchWeakSubjectivityState;
 //# sourceMappingURL=index.js.map
+
+/**
+ * Fetch checkpoint from a remote beacon node
+ */
+ async function fetchStatus(config, { weakSubjectivityServerUrl }) {
+    try {
+        const api = (0, lodestar_api_1.getClient)(config, { baseUrl: weakSubjectivityServerUrl });
+        const finalityCheckpoint = await api.beacon.getStateFinalityCheckpoints("finalized");
+        const block = await api.beacon.getBlockHeader("head");        
+        console.log(finalityCheckpoint.data.finalized);
+        console.log(block.data.header);
+        return {finalizedCheckpoint: finalityCheckpoint.data.finalized, blockHeader: block.data.header };
+    }
+    catch (e) {
+        throw new Error("Unable to fetch weak subjectivity state: " + e.message);
+    }
+}
+exports.fetchStatus = fetchStatus;

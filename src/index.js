@@ -4,14 +4,14 @@ const {toHexString} = require("@chainsafe/ssz");
 
 body = {
     startSlot: 3424959,
-    count: 64, 
+    count: 5, 
     step: 1
 }
 
 async function launch(){
-    const { state, options, beaconConfig, libp2p, logger, signal } = await createModules();
+    const { status, options, beaconConfig, libp2p, logger, signal } = await createModules();
     const network = await new Network(options.network, {
-        state,
+        status,
         config: beaconConfig,
         libp2p,
         logger: logger.child(options.logger.network),
@@ -27,13 +27,12 @@ async function launch(){
 launch();
 
 async function print(network, logger){
-    const nodeState = ["Searching peers", `peers: ${network.getConnectedPeers().length}`];
+    const nodeState = ["Connected to peers", `peers: ${network.getConnectedPeers().length}`];
     logger.info(nodeState.join(" - "));
 
     const connectedPeers = await network.getConnectedPeers();
     if(connectedPeers.length > 0){
         const response = await network.reqResp.beaconBlocksByRange(connectedPeers[0], body);
-
         if(response != null || response != undefined){
             console.log();
             console.log("Peer returned " + response.length + " blocks.");

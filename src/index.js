@@ -38,7 +38,7 @@ async function print(network, logger){
         if(response != null || response != undefined){
             if(response.message != null || response.message != undefined){
                 network.peerManager.blocks.createStatusBlock(response[response.length - 1]);
-            }           
+            }         
             printResponse(response);
         }        
    

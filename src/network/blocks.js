@@ -1,31 +1,42 @@
 const types = require("@chainsafe/lodestar-types");
 const ssz = require("@chainsafe/ssz");
-
 class Blocks{
-    constructor(status, config, clock){        
-        this.storedBlocks = [ ];
-        this.statusBlocks = [ ];
-        this.status = status;
+    constructor(state, config, clock){                    
+        this.state = state;
         this.clock = clock;
         this.config = config;
-        this.statusBlocks.push(this.createStatusBlock());
-        
+        this.statusBlock = this.createFirstStatusBlock();    
+    }
+    
+    getHeadState(){
+        return this.state;
     }
 
     getStatus(){
-        return this.statusBlocks[this.statusBlocks.length - 1];
+        return this.statusBlock;
     }
 
-    createStatusBlock(){
-        const blockHeader = types.ssz.phase0.BeaconBlockHeader.createTreeBackedFromStruct(this.status.blockHeader.message); 
-        const finalizedCheckpoint = types.ssz.phase0.Checkpoint.createTreeBackedFromStruct(this.status.finalizedCheckpoint);
-        return{
+    createFirstStatusBlock(){
+        const blockHeader = types.ssz.phase0.BeaconBlockHeader.createTreeBackedFromStruct(this.state.latestBlockHeader);     
+        const statusBlock = {
             forkDigest: this.config.forkName2ForkDigest(this.config.getForkName(this.clock.currentSlot)),
-            finalizedRoot: finalizedCheckpoint.root,
-            finalizedEpoch: this.status.finalizedCheckpoint.epoch,
+            finalizedRoot:  ssz.fromHexString(ssz.toHexString(this.state.finalizedCheckpoint.root)),
+            finalizedEpoch: this.state.finalizedCheckpoint.epoch,
             headRoot: blockHeader.hashTreeRoot(),
             headSlot: blockHeader.slot,
-        }
+        }        
+        return statusBlock;
+    }
+
+    createStatusBlock(response){
+        const statusBlock = {
+            forkDigest: this.config.forkName2ForkDigest(this.config.getForkName(this.clock.currentSlot)),
+            finalizedRoot: ssz.fromHexString(ssz.toHexString(this.state.finalizedCheckpoint.root)),
+            finalizedEpoch:  this.state.finalizedCheckpoint.epoch,
+            headRoot: ssz.fromHexString(ssz.toHexString(types.ssz.phase0.BeaconBlockHeader.createTreeBackedFromStruct(response.message).hashTreeRoot())),
+            headSlot: response.message.slot,
+        } 
+        this.statusBlock = statusBlock;
     }
 }
 exports.Blocks = Blocks;

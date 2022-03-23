@@ -59,9 +59,14 @@ function assertPeerRelevance(remote, blocks) {
         !isZeroRoot(remote.finalizedRoot) &&
         !isZeroRoot(local.finalizedRoot)) {
         const remoteRoot = remote.finalizedRoot;
-        const expectedRoot = local.finalizedRoot;
+        const expectedRoot = remote.finalizedEpoch === local.finalizedEpoch
+            ? local.finalizedRoot
+            : // This will get the latest known block at the start of the epoch.
+                getRootAtHistoricalEpoch(blocks, remote.finalizedEpoch);
         if (expectedRoot !== null && !lodestar_types_1.ssz.Root.equals(remoteRoot, expectedRoot)) {
             console.log("Different finalized");
+            console.log(expectedRoot);
+            console.log(remoteRoot);
             return {
                 code: IrrelevantPeerCode.DIFFERENT_FINALIZED,
                 expectedRoot: expectedRoot,
@@ -78,7 +83,28 @@ function isZeroRoot(root) {
     return lodestar_types_1.ssz.Root.equals(root, ZERO_ROOT);
 }
 exports.isZeroRoot = isZeroRoot;
-
+function getRootAtHistoricalEpoch(blocks, epoch) {
+    const headState = blocks.getHeadState();
+    const slot = (0, lodestar_beacon_state_transition_1.computeStartSlotAtEpoch)(epoch);
+    if (slot < headState.slot - lodestar_params_1.SLOTS_PER_HISTORICAL_ROOT) {
+        // TODO: If the slot is very old, go to the historical blocks DB and fetch the block with less or equal `slot`.
+        // Note that our db schema will have to be updated to persist the block root to prevent re-hashing.
+        // For now peers will be accepted, since it's better than throwing an error on `getBlockRootAtSlot()`
+        return null;
+    }
+    // This will get the latest known block at the start of the epoch.
+    // NOTE: Throws if the epoch if from a long-ago epoch
+    return (0, lodestar_beacon_state_transition_1.getBlockRootAtSlot)(headState, slot);
+    // NOTE: Previous code tolerated long-ago epochs
+    // ^^^^
+    // finalized checkpoint of status is from an old long-ago epoch.
+    // We need to ask the chain for most recent canonical block at the finalized checkpoint start slot.
+    // The problem is that the slot may be a skip slot.
+    // And the block root may be from multiple epochs back even.
+    // The epoch in the checkpoint is there to checkpoint the tail end of skip slots, even if there is no block.
+    // TODO: accepted for now. Need to maintain either a list of finalized block roots,
+    // or inefficiently loop from finalized slot backwards, until we find the block we need to check against.
+}
 function renderIrrelevantPeerType(type) {
     switch (type.code) {
         case IrrelevantPeerCode.INCOMPATIBLE_FORKS:

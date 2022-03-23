@@ -101,19 +101,3 @@ async function fetchWeakSubjectivityState(config, url) {
 }
 exports.fetchWeakSubjectivityState = fetchWeakSubjectivityState;
 //# sourceMappingURL=index.js.map
-
-/**
- * Fetch checkpoint from a remote beacon node
- */
- async function fetchStatus(config, { weakSubjectivityServerUrl }) {
-    try {
-        const api = (0, lodestar_api_1.getClient)(config, { baseUrl: weakSubjectivityServerUrl });
-        const finalityCheckpoint = await api.beacon.getStateFinalityCheckpoints("finalized");
-        const block = await api.beacon.getBlockHeader("head");        
-        return {finalizedCheckpoint: finalityCheckpoint.data.finalized, blockHeader: block.data.header };
-    }
-    catch (e) {
-        throw new Error("Unable to fetch weak subjectivity state: " + e.message);
-    }
-}
-exports.fetchStatus = fetchStatus;

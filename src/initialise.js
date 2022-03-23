@@ -41,21 +41,24 @@ async function createModules(){
     onGracefulShutdown(async () => {
         abortController.abort();
     }, logger.info.bind(logger));
-    logger.info("Lodestar", { version: version, network: args.network });
-    const status = await fetchCheckpoint(logger);
+    logger.info("Libp2p server connected to", { network: args.network });
+    const state = await fetchState(logger);
     const beaconConfig = createIBeaconConfig(config, fromHexString("0x4b363db94e286120d76eb905340fdd4e54bfe9f06bf33ff6cf5ad27f511bfe95"));
     const libp2p = await createNodeJsLibp2p(peerId, options.network, {peerStoreDir: beaconPaths.peerStoreDir});
     const controller = new AbortController();
     const signal = controller.signal;
-    return { status, options, beaconConfig, libp2p, logger, controller, signal };
+    return { state, options, beaconConfig, libp2p, logger, controller, signal };
 }
 exports.createModules = createModules;
 
-async function fetchCheckpoint(logger){
+async function fetchState(logger){
     const config = getBeaconConfigFromArgs(args);
-    logger.info("Fetching checkpoint...");
-    const status = await fetchStatus(config, {weakSubjectivityServerUrl: args["weak-subjectivity-server-url"]});
-    return status;
+    const remoteBeaconUrl = "https://21qajKWbOdMuXWCCPEbxW1bVPrp:5e43bc9d09711d4f34b55077cdb3380a@eth2-beacon-mainnet.infura.io";
+    const stateId = "head";
+    const url = `${remoteBeaconUrl}/eth/v1/debug/beacon/states/${stateId}`;
+    logger.info("Fetching weak subjecitivity state from", {remoteBeaconUrl});
+    const state = await fetchWeakSubjectivityState(config, url);
+    return state;
 }
-exports.fetchCheckpoint = fetchCheckpoint;
+exports.fetchState = fetchState;
 

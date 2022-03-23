@@ -34,28 +34,38 @@ async function print(network, logger){
             count: 1, 
             step: 1
         }
-        const response = await network.reqResp.beaconBlocksByRange(connectedPeers[Math.floor(Math.random())], body);            
-        if(response != null || response != undefined){
-            if(response.message != null || response.message != undefined){
-                network.peerManager.blocks.createStatusBlock(response[response.length - 1]);
-            }         
-            printResponse(response);
-        }        
+        await requestBlocks(network, connectedPeers, body);
    
     }
     setTimeout(print, 12000, network, logger);
+}
+
+async function requestBlocks(network, connectedPeers, body){
+    const response = await network.reqResp.beaconBlocksByRange(connectedPeers[0], body);            
+    if(response != null || response != undefined){
+        if(response.message != null || response.message != undefined){
+            network.peerManager.blocks.createStatusBlock(response[response.length - 1]);
+        }         
+        printResponse(response);
+    }      
 }
 
 
 function printResponse(response){  
     for(let i = 0; i < response.length; i++){
         console.log();
+        console.log("New block");
+        console.log("=========");
         console.log("Slot: " + response[i].message.slot);
         console.log("Proposer index: " + response[i].message.proposerIndex);
         console.log("Block root: " + toHexString(ssz.phase0.BeaconBlockHeader.createTreeBackedFromStruct(response[i].message).hashTreeRoot()));
         console.log("Parent root: " + toHexString(response[i].message.parentRoot));
         console.log("State root: " + toHexString(response[i].message.stateRoot));         
-        
+        console.log("Sync aggregate: ");
+        console.log("  |  ");
+        console.log("  | Sync committee bits: " + toHexString(ssz.altair.SyncCommitteeBits.createTreeBackedFromStruct((response[i].message.body.syncAggregate.syncCommitteeBits)).serialize()));
+        console.log("  | Sync committee signature: " + toHexString(response[i].message.body.syncAggregate.syncCommitteeSignature));    
+        console.log();    
     }    
 }
   

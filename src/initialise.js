@@ -57,14 +57,7 @@ async function fetchState(logger){
     const stateId = "head";
     const url = `${remoteBeaconUrl}/eth/v1/debug/beacon/states/${stateId}`;
     logger.info("Fetching weak subjecitivity state from", {remoteBeaconUrl});
-    var fetchedState = await fetchWeakSubjectivityState(config, url);
-    const state = {
-        finalizedCheckpoint: fetchedState.finalizedCheckpoint,
-        latestBlockHeader: fetchedState.latestBlockHeader,
-        currentSyncCommittee: fetchedState.currentSyncCommittee,
-    }
-    fetchState = null;
-    
+    var state = await fetchWeakSubjectivityState(config, url);
     return state;
 }
 exports.fetchState = fetchState;

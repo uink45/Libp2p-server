@@ -29,7 +29,7 @@ function assertPeerRelevance(remote, blocks) {
     */
     // The node is on a different network/fork
     if (!lodestar_types_1.ssz.ForkDigest.equals(local.forkDigest, remote.forkDigest)) {
-        console.log("Incompatible forks");
+        //console.log("Incompatible forks");
         return {
             code: IrrelevantPeerCode.INCOMPATIBLE_FORKS,
             ours: local.forkDigest,
@@ -41,12 +41,12 @@ function assertPeerRelevance(remote, blocks) {
     // their or our system's clock is incorrect.
     const slotDiff = remote.headSlot - Math.max(blocks.clock.currentSlot, 0);
     if (slotDiff > FUTURE_SLOT_TOLERANCE) {
-        console.log("Different clocks");
+        //console.log("Different clocks");
         return { code: IrrelevantPeerCode.DIFFERENT_CLOCKS, slotDiff };
     }
     // TODO: Is this check necessary?
     if (remote.finalizedEpoch === constants_1.GENESIS_EPOCH && !isZeroRoot(remote.finalizedRoot)) {
-        console.log("Genesis non-zero");
+        //console.log("Genesis non-zero");
         return {
             code: IrrelevantPeerCode.GENESIS_NONZERO,
             root: remote.finalizedRoot,
@@ -64,9 +64,9 @@ function assertPeerRelevance(remote, blocks) {
             : // This will get the latest known block at the start of the epoch.
                 getRootAtHistoricalEpoch(blocks, remote.finalizedEpoch);
         if (expectedRoot !== null && !lodestar_types_1.ssz.Root.equals(remoteRoot, expectedRoot)) {
-            console.log("Different finalized");
-            console.log(expectedRoot);
-            console.log(remoteRoot);
+            //console.log("Different finalized");
+            //console.log(expectedRoot);
+            //console.log(remoteRoot);
             return {
                 code: IrrelevantPeerCode.DIFFERENT_FINALIZED,
                 expectedRoot: expectedRoot,

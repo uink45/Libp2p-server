@@ -36,7 +36,9 @@ async function print(network, logger){
         }
         const response = await network.reqResp.beaconBlocksByRange(connectedPeers[Math.floor(Math.random())], body);            
         if(response != null || response != undefined){
-            network.peerManager.blocks.createStatusBlock(response[response.length - 1]);
+            if(response.message != null || response.message != undefined){
+                network.peerManager.blocks.createStatusBlock(response[response.length - 1]);
+            }           
             printResponse(response);
         }        
    

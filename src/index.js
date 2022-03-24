@@ -41,18 +41,26 @@ async function print(network, logger){
 }
 
 async function requestBlocks(network, connectedPeers, body){
-    const response = await network.reqResp.beaconBlocksByRange(connectedPeers[0], body);            
-    if(response != null || response != undefined){
-        if(response.message != null || response.message != undefined){
-            network.peerManager.blocks.createStatusBlock(response[response.length - 1]);
-        }         
-        printResponse(response);
-    }      
+    var response;
+    var isValid = false;
+
+    while(!isValid){
+        response = await network.reqResp.beaconBlocksByRange(connectedPeers[random(0, connectedPeers.length - 1)], body);  
+        if(response != undefined & response[0] != undefined){
+            isValid = true;
+        }  
+    }
+    
+    network.peerManager.blocks.createStatusBlock(response[response.length - 1]);
+    printResponse(response);     
 }
 
+function random(min, max) {
+    return Math.floor(min + Math.random() * (max - min));
+}
 
 function printResponse(response){  
-    for(let i = 0; i < response.length; i++){
+    for(let i = 0; i < 1; i++){
         console.log();
         console.log("New block");
         console.log("=========");

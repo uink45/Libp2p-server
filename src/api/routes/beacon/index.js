@@ -22,21 +22,15 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.getReturnTypes = exports.getReqSerializers = exports.routesData = void 0;
 const lodestar_types_1 = require("@chainsafe/lodestar-types");
 const utils_1 = require("../../utils");
-const block = __importStar(require("./block"));
-const pool = __importStar(require("./pool"));
 const state = __importStar(require("./state"));
 exports.routesData = {
     getGenesis: { url: "/eth/v1/beacon/genesis", method: "GET" },
-    ...block.routesData,
-    ...pool.routesData,
     ...state.routesData,
 };
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/explicit-function-return-type
 function getReqSerializers(config) {
     return {
         getGenesis: utils_1.reqEmpty,
-        ...block.getReqSerializers(config),
-        ...pool.getReqSerializers(),
         ...state.getReqSerializers(),
     };
 }
@@ -44,8 +38,6 @@ exports.getReqSerializers = getReqSerializers;
 function getReturnTypes() {
     return {
         getGenesis: (0, utils_1.ContainerData)(lodestar_types_1.ssz.phase0.Genesis),
-        ...block.getReturnTypes(),
-        ...pool.getReturnTypes(),
         ...state.getReturnTypes(),
     };
 }

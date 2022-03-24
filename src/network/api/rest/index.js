@@ -3,7 +3,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.RestApi = exports.restApiOptionsDefault = exports.allNamespaces = void 0;
 const fastify_1 = __importDefault(require("fastify"));
 const fastify_cors_1 = __importDefault(require("fastify-cors"));
 const querystring_1 = __importDefault(require("querystring"));

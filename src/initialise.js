@@ -54,7 +54,7 @@ exports.createModules = createModules;
 async function fetchState(logger){
     const config = getBeaconConfigFromArgs(args);
     const remoteBeaconUrl = "https://21qajKWbOdMuXWCCPEbxW1bVPrp:5e43bc9d09711d4f34b55077cdb3380a@eth2-beacon-mainnet.infura.io";
-    const stateId = "head";
+    const stateId = "finalized";
     const url = `${remoteBeaconUrl}/eth/v1/debug/beacon/states/${stateId}`;
     logger.info("Fetching weak subjecitivity state from", {remoteBeaconUrl});
     var state = await fetchWeakSubjectivityState(config, url);

@@ -1,11 +1,13 @@
 const types = require("@chainsafe/lodestar-types");
 const ssz = require("@chainsafe/ssz");
+
 class Blocks{
     constructor(state, config, clock){                    
         this.state = state;
         this.clock = clock;
         this.config = config;
-        this.statusBlock = this.createFirstStatusBlock();    
+        this.statusBlock = this.createFirstStatusBlock();      
+        this.storedBlocks = [];
     }
     
     getHeadState(){

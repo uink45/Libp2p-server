@@ -8,6 +8,7 @@ const chain_1 = require("../chain/emitter");
 const clock_1 = require("../chain/clock");
 const reqresp_1 = require("./reqresp");
 const metadata_1 = require("./metadata");
+
 const emitter_1 = require("../chain/emitter");
 const forks_1 = require("./forks");
 const peerManager_1 = require("./peers/peerManager");
@@ -60,7 +61,7 @@ class Network {
         const clock = new clock_1.LocalClock({ config, emitter, genesisTime: 1606824023, signal });
         const networkEventBus = new events_1.NetworkEventBus();
         const metadata = new metadata_1.MetadataController({}, { config, clock, logger });
-        const peerRpcScores = new peers_1.PeerRpcScoreStore();        
+        const peerRpcScores = new peers_1.PeerRpcScoreStore();                
         const blocks = new blocks_1.Blocks(state, config, clock );    
         const reqRespHandlers = getReqRespHandlers({blocks});  
         this.libp2p = libp2p;

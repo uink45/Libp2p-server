@@ -19,15 +19,9 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.validator = exports.node = exports.lodestar = exports.lightclient = exports.events = exports.debug = exports.config = exports.beacon = void 0;
+exports.lightclient = exports.beacon = void 0;
 exports.beacon = __importStar(require("./beacon"));
-exports.config = __importStar(require("./config"));
-exports.debug = __importStar(require("./debug"));
-exports.events = __importStar(require("./events"));
 exports.lightclient = __importStar(require("./lightclient"));
-exports.lodestar = __importStar(require("./lodestar"));
-exports.node = __importStar(require("./node"));
-exports.validator = __importStar(require("./validator"));
 // Reasoning of the API definitions
 // ================================
 //

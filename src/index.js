@@ -6,10 +6,8 @@ const { getApi } = require("./network/api/impl/api");
 const { RestApi } = require("./network/api/rest");
 
 async function launch(){
-    const { state, options, beaconConfig, libp2p, logger, signal } = await createModules();
-    
+    const { options, beaconConfig, libp2p, logger, signal } = await createModules();
     const network = await new Network(options.network, {
-        state,
         config: beaconConfig,
         libp2p,
         logger: logger.child(options.logger.network),
@@ -29,28 +27,35 @@ async function launch(){
     });
     await restApi.listen();
     */
-    await network.start();
-    
+    await network.start();  
     print(network, logger);
 }
 
 launch();
 
+
 async function print(network, logger){
     const connectedPeers = await network.getConnectedPeers();
     if(connectedPeers.length < 3){
         logger.info("Searching peers - " + `Peer count ${network.getConnectedPeers().length}`);
-        network.peerManager.discovery.discoverPeers(20);
+        network.peerManager.discovery.discoverPeers(30);
     }
     else{
         const nodeState = ["Connected to peers", `${network.getConnectedPeers().length}`];
         logger.info(nodeState.join(" - "));        
-        const body = {
-            startSlot: network.clock.currentSlot - 5,
-            count: 5, 
+        const finalizedBlockRequest = {
+            startSlot: ((Math.floor(network.clock.currentSlot / 32) - 2) * 32),
+            count: 1,
+            step: 1,
+        }
+        const currentBlockRequest = {
+            startSlot: network.clock.currentSlot,
+            count: 1, 
             step: 1
         }
-        await requestBlocks(network, connectedPeers, body, logger);   
+        const finalizedBlock = await requestBlocks(network, connectedPeers, finalizedBlockRequest, logger); 
+        const currentBlock = await requestBlocks(network,connectedPeers, currentBlockRequest, logger); 
+        storeBlocks(network, finalizedBlock, currentBlock);
     }
     setTimeout(print, 12000, network, logger);
 }
@@ -64,18 +69,25 @@ async function requestBlocks(network, connectedPeers, body, logger){
             response = await network.reqResp.beaconBlocksByRange(connectedPeers[random(0, connectedPeers.length - 1)], body);  
         }
         catch(error){
-            logger.info("Peer disconnected after sending request - " + `Peer count ${network.getConnectedPeers().length}`);
-            break;
+            requestBlocks(network, connectedPeers, body, logger);
         }        
-        if(response != undefined & response[0] != undefined){
+        if(response != undefined && response[0] != undefined){
             isValid = true;
         }  
     }
     if(isValid){
-        network.peerManager.blocks.createStatusBlock(response[response.length - 1]);
-        network.peerManager.blocks.storedBlocks = response;
-        printResponse(response);    
-    }         
+        return response;
+    }
+    else {
+        return null;
+    }               
+}
+
+function storeBlocks(network, finalizedBlock, currentBlock){
+    if(finalizedBlock != null & currentBlock != null){
+        network.peerManager.blocks.updateStatusBlock(finalizedBlock[0], currentBlock[0]);
+        printResponse(currentBlock);    
+    } 
 }
 
 function random(min, max) {

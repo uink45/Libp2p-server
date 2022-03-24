@@ -56,13 +56,15 @@ class Network {
         };
         this.unsubscribeCoreTopicsAtFork = (fork) => {
         };
-        const { state, config, libp2p, logger, metrics, signal } = modules;
+        const { config, libp2p, logger, metrics, signal } = modules;
         const emitter = new emitter_1.ChainEventEmitter();
         const clock = new clock_1.LocalClock({ config, emitter, genesisTime: 1606824023, signal });
+        
         const networkEventBus = new events_1.NetworkEventBus();
         const metadata = new metadata_1.MetadataController({}, { config, clock, logger });
         const peerRpcScores = new peers_1.PeerRpcScoreStore();                
-        const blocks = new blocks_1.Blocks(state, config, clock );    
+        const blocks = new blocks_1.Blocks(config, clock );    
+        
         const reqRespHandlers = getReqRespHandlers({blocks});  
         this.libp2p = libp2p;
         this.logger = logger;

@@ -41,13 +41,12 @@ async function createModules(){
     onGracefulShutdown(async () => {
         abortController.abort();
     }, logger.info.bind(logger));
-    logger.info("Libp2p server connected to", { network: args.network });
-    const state = await fetchState(logger);
+    logger.info("Libp2p server connected to", { network: args.network });    
     const beaconConfig = createIBeaconConfig(config, fromHexString("0x4b363db94e286120d76eb905340fdd4e54bfe9f06bf33ff6cf5ad27f511bfe95"));
     const libp2p = await createNodeJsLibp2p(peerId, options.network, {peerStoreDir: beaconPaths.peerStoreDir});
     const controller = new AbortController();
     const signal = controller.signal;
-    return { state, options, beaconConfig, libp2p, logger, controller, signal };
+    return { options, beaconConfig, libp2p, logger, controller, signal };
 }
 exports.createModules = createModules;
 

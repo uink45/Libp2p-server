@@ -21,12 +21,7 @@ var IrrelevantPeerCode;
  */
 function assertPeerRelevance(remote, blocks) {
     const local = blocks.getStatus();
-    /*
-    console.log("Local: ");
-    console.log(local);
-    console.log("Remote: ");
-    console.log(remote);
-    */
+    
     // The node is on a different network/fork
     if (!lodestar_types_1.ssz.ForkDigest.equals(local.forkDigest, remote.forkDigest)) {
         return {
